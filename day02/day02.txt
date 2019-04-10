@@ -1,0 +1,108 @@
+Day01回顾
+1、请求模块(urllib.request)
+  1、Request(url,headers=headers)
+  2、urlopen(请求对象)
+2、响应对象方法
+  1、res.read()  # bytes
+     res.read().decode('utf-8') # string
+  2、res.getcode()
+3、编码模块(urllib.parse)
+  1、urlencode({})
+    1个查询参数 ：{'kw':'美女'}
+      #编码后 : 'kw=%D3...'
+    多个查询参数：{'kw':'美女','pn':'30'}
+      #编码后 : 'kw=%D3&pn=30'
+  2、quote('')
+    key = '屠龙刀'
+    quote(key) # 编码后：'%E5....'
+  3、unquote('')
+    s = '%E5...'
+    unquote(s) # 解码后：'屠龙刀'
+4、数据爬取步骤
+  1、找URL规律(拼接)
+  2、获取响应内容
+  3、保存
+5、正则分组
+  1、分组(想要抓取什么内容,就加小括号())
+  2、正则方法
+     r_list = re.findall('',html,re.S)
+     p = re.compile('',re.S)
+     r_list = p.findall(html)
+  3、先按照整体匹配,然后再提取括号()中的
+     如果2个以上(),则以元组形式显示
+     # 结果 ：[('A','B'),('C','D'),(),()]
+  4、贪婪匹配 ： .*  ['<div><p>........</p></div>']
+     非贪婪匹配：.*? [2个元素]
+*************************************************
+Day02笔记
+1、正则分组练习(见01_正则分组练习.py)
+	html = '''
+	<div class="animal">
+	  <p class="name">
+	    <a title="Tiger"></a>
+	  </p>
+
+	  <p class="contents">
+	    Two tigers two tigers run fast
+	  </p>
+	</div>
+
+	<div class="animal">
+	  <p class="name">
+	    <a title="rabbit"></a>
+	  </p>
+
+	  <p class="contents">
+	    small white rabbit white and white
+	  </p>
+	</div>'''
+	第1步 ：[('Tiger','Two tigers ...'),('rabbit','.')]
+	第2步 ：
+		动物名称 ：Tiger
+		动物描述 ：Two tigers ....
+		****************************
+		动物名称 ：rabbit
+		.....................
+2、csv模块使用流程
+  1、导入模块
+    import csv
+  2、打开文件(XXX.csv)
+    with open('xxx.csv','a') as f:
+        #初始化写入对象
+        writer = csv.writer(f)
+	# 写入数据
+        writer.writerow(['旭叔叔','39'])
+	writer.writerow(['魏叔叔','40'])
+	writer.writerow(['超哥哥','26'])
+  3、注意
+    1、windows下会出现空行,使用newline参数
+       with open('老师.csv','w',newline='') as f:
+           ... .... 
+3、猫眼电影top100榜单
+  1、网址 ：猫眼电影 - 榜单 - top100榜
+  2、目标 ：电影名称、主演、上映时间
+  3、保存 ：本地csv文件
+  4、步骤
+    1、找URL规律
+      第1页：https://maoyan.com/board/4?offset=0
+      第2页：https://maoyan.com/board/4?offset=10
+      第n页：offset=(n-1)*10
+    2、写正则表达式
+	<div class="movie-item-info">.*?title="(.*?)".*?class="star">(.*?)</p>.*?time">(.*?)</p>
+    3、写程序框架
+4、数据持久化存储
+  1、pymongo回顾
+
+  2、pymysql回顾
+
+
+
+
+
+
+
+
+
+
+
+

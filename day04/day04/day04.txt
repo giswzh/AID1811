@@ -1,0 +1,160 @@
+Day03回顾
+1、requests模块
+  1、get()
+    1、查询参数 ：params -> 字典
+    2、代理参数 ：proxies -> 字典
+       {'协议' : '协议://IP:端口号'}
+       {'协议' : '协议://用户名:密码@IP:端口号'}
+    3、Web客户端验证 ：auth -> 元组
+       auth = ('tarenacode','code_2013')
+    4、SSL证书认证 ：verify -> True / False
+       verify = False : 忽略证书认证
+    5、timeout
+    6、headers
+    7、url
+  2、post()
+    参数名 ：data -> 字典
+  3、响应对象res属性
+    1、res.text
+    2、res.content
+    3、res.encoding
+    4、res.status_code
+2、lxml使用流程
+  1、from lxml import etree
+  2、parse_html = etree.HTML(html)
+  3、r_list = parse_html.xpath('xpath表达式')
+3、xpath匹配规则
+  1、获取对象 ： //div[@id="tiger"]
+  2、获取属性值： //div[@class="a"]//a/@href
+  3、获取文本 ： //div[@name="rabbit"]/a/text()
+  4、常用函数 ： //div[contains(@id,'abc')]/a
+4、xpath高级
+  1、基准xpath表达式(节点对象列表)
+  2、for r in [节点对象列表]:
+         uname = r.xpath('.//a')
+*******************************************
+Day04笔记
+1、作业讲解(猫眼电影)
+  1、基准xpath表达式
+     //dl[@class="board-wrapper"]//dd
+  2、遍历节点对象列表
+     1、名称 ：'./a/@title'
+     2、主演 ：'.//p[@class="star"]/text()'
+     3、时间 ：'.//p[@class="releasetime"]/text()'
+2、作业讲解(腾讯招聘)
+  1、匹配出职责和要求的节点对象列表
+    //tr[@class="c"]/td/ul[@class="squareli"]
+    # jobinfo_list : [ul对象1,ul对象2]
+  2、分别获取职责和要求的文本内容
+    duty = '\n'.join(jobinfo_list[0].xpath('.//li/text()'))
+    requirement = '\n'.join(jobinfo_list[1].xpath('.//li/text()'))
+    
+
+
+
+    负责。。。。 
+    负责。。。。
+    负责。。。。
+3、百度贴吧图片+视频抓取
+  1、目标 ：指定吧所有图片
+  2、思路
+    1、获取贴吧主页URL规律
+       http://tieba.baidu.com/f?kw=??&pn=50
+    2、获取1页中所有帖子链接(xpath)
+       [t1,t2,t3,t4,...,t50]
+    3、对每个帖子发请求,获取图片链接(xpath)
+           [img1,img2,img3]
+    4、对每个图片链接发请求,wb方式保存本地
+  3、中文思路
+    for 1个帖子链接 in [t1,t2,t3,...,t50]:
+        img_list = parse_html.xpath('表达式')
+	for img in img_list:
+	    对图片链接发请求,保存到本地
+  4、准备工作
+    1、贴吧页面URL规律
+        http://tieba.baidu.com/f?kw=??&pn=50
+    2、提取帖子链接xpath
+      //div[@class="col2_right j_threadlist_li_right "]/div/div/a/@href
+    3、提取图片链接xpath
+     //div[@class="d_post_content j_d_post_content  clearfix"]/img[@class="BDE_Image"]/@src
+    4、提取视频链接xpath
+      //div[@class="video_src_wrapper"]/embed/@data-video
+      ** 百度对响应内容做了更改,向1个帖子发请求获取响应内容到本地,进行页面分析 **
+4、requests.post()
+   1、参数名 ：data -> 字典
+   2、requests.post(url,data=data,headers=headers)
+   3、data ：Form表单数据,字典,不用编码和转码
+5、有道翻译破解案例(post,js加密)
+  1、目标 ：终端输入翻译的单词,返回翻译结果
+  2、步骤
+    1、F12抓包,多抓几次观察Form Data表单数据变化
+       salt、sign、ts、bv(不变)
+    2、为js文件加密,抓取到js文件,分析js代码,找到加密的算法
+    3、F12,重新访问有道,抓取js文件,找到fanyi.min.js,Preview选项查看js代码(复制到本地)
+    4、ctrl+F搜索关键词(salt、sign),找到加密方式,并用python语句实现加密
+    5、用python语句实现4个字段的加密
+      1、ts ：r = "" + (new Date).getTime()
+              1554364150296
+	      r = str(int(time.time()*1000))
+      2、bv ：t = n.md5(navigator.appVersion)
+              **此值不变,直接在程序复制1个即可**
+      3、salt:i=r+parseInt(10*Math.random(),10);
+              i=str(int(time.time()*1000))+str(random.randint(0,10))
+      4、sign:n.md5("fanyideskweb" + e + i + "1L5ja}w$puC.v_Kz3@yYn")
+         ** e 为要翻译的单词 **
+	     from hashlib import md5
+             string = 'xxxxxxxxx'
+	     pwdobj = md5()
+	     pwdobj.update(string.encode('utf-8'))
+	     sign = pwdobj.hexdigest()
+      **** js文件部分代码 ****
+      var r = function(e) {
+        var t = n.md5(navigator.appVersion)
+          , r = "" + (new Date).getTime()
+          , i = r + parseInt(10 * Math.random(), 10);
+        return {
+            ts: r,
+            bv: t,
+            salt: i,
+            sign: n.md5("fanyideskweb" + e + i + "1L5ja}w$puC.v_Kz3@yYn")
+        }
+      };
+6、有道翻译案例总结
+  1、headers中注意 ：User-Agent、Referer、Cookie
+  2、爬虫敏感词    ：salt 、sign 
+
+
+
+
+
+
+
+
+
+第1次 ：
+salt: 15543641502962
+sign: 19c69bf98f446d88bdd007eeef5473ec
+ts: 1554364150296
+bv: d6c3cd962e29b66abe48fcb8f4dd7f7d
+
+
+data = {
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
